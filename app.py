@@ -1,5 +1,10 @@
 import streamlit as st
 import time
+import os
+
+MISTRAL_API_KEY = os.getenv("MISTRAL_API_KEY")
+TAVILY_API_KEY = os.getenv("TAVILY_API_KEY")
+
 from agents import build_reader_agent, build_search_agent, writer_chain, critic_chain
 
 # ── Page config ──────────────────────────────────────────────────────────────
