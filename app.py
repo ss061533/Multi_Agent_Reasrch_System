@@ -92,24 +92,45 @@ html, body, [class*="css"] {
 }
 
 /* ── Streamlit input overrides ── */
-.stTextInput > div > div > input {
-    background: rgba(255,255,255,0.05) !important;
+div[data-testid="stTextInput"] input,
+div[data-baseweb="input"] input,
+.stTextInput > div > div > input,
+.stTextInput input[type="text"] {
+    background: rgba(20,18,22,0.9) !important;
     border: 1px solid rgba(255,140,50,0.25) !important;
     border-radius: 10px !important;
     color: #ffffff !important;
+    -webkit-text-fill-color: #ffffff !important;
     font-family: 'DM Sans', sans-serif !important;
     font-size: 1rem !important;
     padding: 0.75rem 1rem !important;
     caret-color: #ff8c32 !important;
     transition: border-color 0.2s, box-shadow 0.2s !important;
 }
-.stTextInput > div > div > input::placeholder {
-    color: #8a8378 !important;
+div[data-testid="stTextInput"] input::placeholder,
+.stTextInput input[type="text"]::placeholder {
+    color: #9a938a !important;
+    -webkit-text-fill-color: #9a938a !important;
     opacity: 1 !important;
 }
-.stTextInput > div > div > input:focus {
+div[data-testid="stTextInput"] input:focus,
+.stTextInput input[type="text"]:focus {
     border-color: #ff8c32 !important;
     box-shadow: 0 0 0 3px rgba(255,140,50,0.12) !important;
+    color: #ffffff !important;
+    -webkit-text-fill-color: #ffffff !important;
+}
+/* Autofill state can silently force text invisible in Chrome/Safari */
+div[data-testid="stTextInput"] input:-webkit-autofill,
+div[data-testid="stTextInput"] input:-webkit-autofill:hover,
+div[data-testid="stTextInput"] input:-webkit-autofill:focus {
+    -webkit-text-fill-color: #ffffff !important;
+    -webkit-box-shadow: 0 0 0px 1000px rgba(20,18,22,0.9) inset !important;
+    transition: background-color 5000s ease-in-out 0s !important;
+}
+/* The wrapping div BaseWeb uses can also carry its own dark/light text color */
+div[data-baseweb="input"] {
+    background: rgba(20,18,22,0.9) !important;
 }
 .stTextInput > label {
     font-family: 'DM Mono', monospace !important;
