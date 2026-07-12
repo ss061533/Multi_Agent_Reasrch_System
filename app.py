@@ -96,11 +96,16 @@ html, body, [class*="css"] {
     background: rgba(255,255,255,0.05) !important;
     border: 1px solid rgba(255,140,50,0.25) !important;
     border-radius: 10px !important;
-    color: #f0ebe0 !important;
+    color: #ffffff !important;
     font-family: 'DM Sans', sans-serif !important;
     font-size: 1rem !important;
     padding: 0.75rem 1rem !important;
+    caret-color: #ff8c32 !important;
     transition: border-color 0.2s, box-shadow 0.2s !important;
+}
+.stTextInput > div > div > input::placeholder {
+    color: #8a8378 !important;
+    opacity: 1 !important;
 }
 .stTextInput > div > div > input:focus {
     border-color: #ff8c32 !important;
@@ -224,21 +229,21 @@ html, body, [class*="css"] {
 .result-content {
     font-size: 0.92rem;
     line-height: 1.8;
-    color: #cdc8bf;
+    color: #e8e4dc;
     white-space: pre-wrap;
     font-family: 'DM Sans', sans-serif;
 }
 
 /* ── Report & feedback panels ── */
 .report-panel {
-    background: rgba(255,255,255,0.025);
+    background: rgba(255,255,255,0.04);
     border: 1px solid rgba(255,140,50,0.2);
     border-radius: 16px;
     padding: 2rem 2.5rem;
     margin-top: 1rem;
 }
 .feedback-panel {
-    background: rgba(255,255,255,0.025);
+    background: rgba(255,255,255,0.04);
     border: 1px solid rgba(80,200,120,0.2);
     border-radius: 16px;
     padding: 2rem 2.5rem;
@@ -259,6 +264,31 @@ html, body, [class*="css"] {
 .panel-label.green {
     color: #50c878;
     border-bottom: 1px solid rgba(80,200,120,0.15);
+}
+
+/* ── Fix: native st.markdown() output (final report + critic feedback) ── */
+.stMarkdown,
+.stMarkdown p,
+.stMarkdown li,
+.stMarkdown span,
+.stMarkdown strong,
+.stMarkdown em {
+    color: #e8e4dc !important;
+}
+.stMarkdown h1, .stMarkdown h2, .stMarkdown h3, .stMarkdown h4 {
+    color: #f0ebe0 !important;
+    font-family: 'Syne', sans-serif !important;
+}
+.stMarkdown a {
+    color: #ff8c32 !important;
+}
+.stMarkdown code {
+    color: #ffb877 !important;
+    background: rgba(255,140,50,0.1) !important;
+}
+.stMarkdown blockquote {
+    color: #cdc8bf !important;
+    border-left: 3px solid #ff8c32 !important;
 }
 
 /* ── Progress text ── */
@@ -421,7 +451,6 @@ if st.session_state.running and not st.session_state.done:
         })
         results["search"] = sr["messages"][-1].content
         st.session_state.results = dict(results)
-    st.rerun() if False else None   # keep inline for now
 
     # ── Step 2: Reader ──
     with st.spinner("📄  Reader Agent is scraping top resources…"):
