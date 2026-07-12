@@ -464,46 +464,85 @@ if st.session_state.running and not st.session_state.done:
     results = {}
     topic_val = st.session_state.topic_input
 
+    # ── Branded progress overlay ──
+    overlay = st.empty()
+    progress_bar = st.progress(0)
+
+    def show_status(text, pct):
+        overlay.markdown(f"""
+        <div style="
+            display:flex;align-items:center;gap:0.8rem;
+            background:rgba(255,140,50,0.06);
+            border:1px solid rgba(255,140,50,0.25);
+            border-radius:12px;padding:1rem 1.4rem;margin-bottom:0.6rem;
+        ">
+            <div style="
+                width:14px;height:14px;border-radius:50%;
+                background:#ff8c32;flex-shrink:0;
+                box-shadow:0 0 0 4px rgba(255,140,50,0.15);
+                animation:pulse 1.2s ease-in-out infinite;
+            "></div>
+            <span style="
+                font-family:'DM Sans',sans-serif;font-size:0.95rem;
+                color:#f0ebe0;font-weight:500;
+            ">{text}</span>
+        </div>
+        <style>
+        @keyframes pulse {{
+            0%, 100% {{ opacity: 1; transform: scale(1); }}
+            50% {{ opacity: 0.5; transform: scale(0.8); }}
+        }}
+        </style>
+        """, unsafe_allow_html=True)
+        progress_bar.progress(pct)
+
     # ── Step 1: Search ──
-    with st.spinner("🔍  Search Agent is working…"):
-        search_agent = build_search_agent()
-        sr = search_agent.invoke({
-            "messages": [("user", f"Find recent, reliable and detailed information about: {topic_val}")]
-        })
-        results["search"] = sr["messages"][-1].content
-        st.session_state.results = dict(results)
+    show_status("🔍 Search Agent is gathering sources…", 10)
+    search_agent = build_search_agent()
+    sr = search_agent.invoke({
+        "messages": [("user", f"Find recent, reliable and detailed information about: {topic_val}")]
+    })
+    results["search"] = sr["messages"][-1].content
+    st.session_state.results = dict(results)
+    show_status("🔍 Search Agent is gathering sources…", 25)
 
     # ── Step 2: Reader ──
-    with st.spinner("📄  Reader Agent is scraping top resources…"):
-        reader_agent = build_reader_agent()
-        rr = reader_agent.invoke({
-            "messages": [("user",
-                f"Based on the following search results about '{topic_val}', "
-                f"pick the most relevant URL and scrape it for deeper content.\n\n"
-                f"Search Results:\n{results['search'][:800]}"
-            )]
-        })
-        results["reader"] = rr["messages"][-1].content
-        st.session_state.results = dict(results)
+    show_status("📄 Reader Agent is scraping deep content…", 35)
+    reader_agent = build_reader_agent()
+    rr = reader_agent.invoke({
+        "messages": [("user",
+            f"Based on the following search results about '{topic_val}', "
+            f"pick the most relevant URL and scrape it for deeper content.\n\n"
+            f"Search Results:\n{results['search'][:800]}"
+        )]
+    })
+    results["reader"] = rr["messages"][-1].content
+    st.session_state.results = dict(results)
+    show_status("📄 Reader Agent is scraping deep content…", 55)
 
     # ── Step 3: Writer ──
-    with st.spinner("✍️  Writer is drafting the report…"):
-        research_combined = (
-            f"SEARCH RESULTS:\n{results['search']}\n\n"
-            f"DETAILED SCRAPED CONTENT:\n{results['reader']}"
-        )
-        results["writer"] = writer_chain.invoke({
-            "topic": topic_val,
-            "research": research_combined
-        })
-        st.session_state.results = dict(results)
+    show_status("✍️ Writer is drafting the report…", 65)
+    research_combined = (
+        f"SEARCH RESULTS:\n{results['search']}\n\n"
+        f"DETAILED SCRAPED CONTENT:\n{results['reader']}"
+    )
+    results["writer"] = writer_chain.invoke({
+        "topic": topic_val,
+        "research": research_combined
+    })
+    st.session_state.results = dict(results)
+    show_status("✍️ Writer is drafting the report…", 85)
 
     # ── Step 4: Critic ──
-    with st.spinner("🧐  Critic is reviewing the report…"):
-        results["critic"] = critic_chain.invoke({
-            "report": results["writer"]
-        })
-        st.session_state.results = dict(results)
+    show_status("🧐 Critic is reviewing the report…", 90)
+    results["critic"] = critic_chain.invoke({
+        "report": results["writer"]
+    })
+    st.session_state.results = dict(results)
+    show_status("✅ Done — assembling your report…", 100)
+
+    overlay.empty()
+    progress_bar.empty()
 
     st.session_state.running = False
     st.session_state.done = True
